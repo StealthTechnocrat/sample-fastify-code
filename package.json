@@ -1,0 +1,20 @@
+{
+  "name": "fastify-ts-fetch-url-meta",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.5.2"
+  },
+  "dependencies": {
+    "@fastify/mongodb": "^8.0.0",
+    "dotenv": "^16.4.5",
+    "fastify": "^4.28.1",
+    "pino-pretty": "^11.2.1"
+  },
+  "scripts": {
+    "start": "bun index.ts"
+  }
+}
