@@ -4,23 +4,18 @@ import Fastify from 'fastify';
 /* load dotenv */
 import dotenv from "dotenv";
 
-/* load fastify mongo package */
-import fastifyMongo from '@fastify/mongodb';
+import GreetRoute from './routes/greetRoute';
 
-/* load mongo connection resource */
-import MongoConnect from './resource/MongoConnect';
+import UserRoute from './routes/userRoute';
 
-/* load user contoller */
-import userController from './controllers/User';
+import fastifyMongodb from '@fastify/mongodb';
 
-/* load greetings controllers */
-import greetingsController from './controllers/Greetings';
 
 /* import hooks 
  hooks are syste events in fastify:
  https://fastify.dev/docs/latest/Reference/Hooks/#hooks
 */
-import customHooks from './hooks/CustomHooks';
+// import customHooks from './hooks/CustomHooks';
 
 
 
@@ -45,49 +40,13 @@ const loggerSettings = {
 }
 
 /* initiate fastify with logger settings */
-const fastify = Fastify(
+const fastify = await Fastify(
     {
         logger: loggerSettings[process.env.ENVIRONMENT]
     }
 );
 
-
-
-/* declare a decorator */
-fastify.decorateRequest('otherName', '');
-
-/* register the hook */
-fastify.addHook('preHandler', customHooks.preHander);
-
-/* connect to MONGO */
-fastify.register(
-    fastifyMongo,
-    {
-        // force to close the mongodb connection when app stopped
-        // the default value is false
-        forceClose: true,
-
-        url: process.env.MONGO_CONN_STRING
-    }
-);
-
-/* register a connections here */
-fastify.register(MongoConnect.init);
-
-
-/* resgiter controller */
-fastify.register(
-    /* controller instance */
-    greetingsController,
-    {
-        /* request prefixes */
-        prefix: '/greetings'
-    }
-);
-
-/* resgister a controller */
-fastify.register(userController);
-
+;
 
 
 /* register server */
@@ -95,6 +54,34 @@ const start = async () =>
 {
     try
     {
+
+        await fastify.register(fastifyMongodb, {
+            url: process.env.MONGO_CONN_STRING
+        });
+
+        if (fastify.mongo)
+        {
+            fastify.log.info('MongoDB plugin is registered');
+        }
+        else 
+        {
+            /* let us exit when there is NO DB connection */
+            fastify.log.error('MongoDB plugin is not registered');
+            process.exit(1);
+        }
+
+        /* start routes here */
+        fastify.register(
+            GreetRoute,
+            {
+                prefix: '/greetings'
+            }
+        );
+
+        fastify.register(UserRoute.saveUser);
+
+
+        /* start listeing */
         await fastify.listen({ port: 3000 });
         console.log('Server is running at http://localhost:3000');
     } catch (err)

@@ -1,5 +1,6 @@
 import type { FastifyInstance } from "fastify";
-/* response schema */
+import GreetController from "../controllers/greetController";
+
 const schemaValidation = {
     schema: {
         response: {
@@ -41,36 +42,14 @@ const schemaValidation = {
     }
 };
 
-
-/* the controler object */
-const greetingsController = (
-    fastify: FastifyInstance,
-    options: object,
-    done: Function
-) =>
+const GreetRoute = (fastify: FastifyInstance, options: Object, done: Function) =>
 {
-    /* put the route here */
-
-    /* 
-        sample route 
-        http://localhost:3000/func-route/wow?name=hello
-    */
     fastify.get(
         '/hello/:name',
         schemaValidation,
-        (req, res) =>
-        {
-            res.send(
-                {
-                    messages: `Hello ${req.otherName}`
-                }
-            )
-        }
+        GreetController
     );
 
-
-    /* call this always */
     done();
 }
-
-export default greetingsController;
+export default GreetRoute;
